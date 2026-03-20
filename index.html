@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heavy Weight on Small Shoulders</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+  <style>
+    :root {
+      --navy: #394a62;
+      --crimson: #9f1c20;
+      --teal: #02605b;
+      --warm-bg: #fdf6ec;
+      --warm-bg-alt: #f5ece0;
+      --text-primary: #394a62;
+      --text-light: #f5ece0;
+      --cloud-white: #e8ddd0;
+      --dark-footer: #2a1f1a;
+      --font-main: 'Montserrat', sans-serif;
+      --fs-hero-title: clamp(2rem, 6vw, 4.5rem);
+      --fs-section-title: clamp(1.5rem, 4vw, 2.5rem);
+      --fs-body: clamp(1rem, 2.5vw, 1.2rem);
+      --fs-caption: clamp(0.8rem, 2vw, 0.95rem);
+      --max-content-width: 720px;
+      --ease-narrative: cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-main);
+      background-color: var(--warm-bg);
+      color: var(--navy);
+      overflow-x: hidden;
+    }
+
+    /* Hero CSS */
+    .hero-wrapper { position: relative; height: 200vh; }
+
+    .hero-scene {
+      position: sticky; top: 0; height: 100vh;
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+
+    .hero-img {
+      position: absolute; width: 100%; height: 100%;
+      object-fit: cover; will-change: transform, opacity;
+    }
+    .hero-img-top { top: 0; }
+    .hero-img-bottom { bottom: 0; }
+
+    .hero-text-overlay {
+      position: absolute; right: 5%; top: 50%; transform: translateY(-50%);
+      max-width: 420px; background: rgba(0,0,0,0.55); color: white;
+      padding: 32px; border-radius: 8px; backdrop-filter: blur(8px);
+      opacity: 0; /* animated by GSAP */
+      font-size: clamp(0.9rem, 2vw, 1.05rem); line-height: 1.75;
+    }
+
+    .hero-clouds {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+      z-index: 10; pointer-events: none; will-change: transform;
+      background-image: url("https://arthurmichael72.github.io/images/HeroNewCloud.jpg"); /* change cover image clouds Alfredo */
+      background-size: cover;
+    }
+
+    .cloud-layer {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--warm-bg);
+    }
+    .cloud-layer-1 {
+      background: linear-gradient(180deg, #e8ddd0 0%, #fdf6ec 40%, #f5ece0 100%);
+    }
+    .cloud-layer-2 {
+      background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.6), transparent 60%),
+                  radial-gradient(ellipse at 70% 60%, rgba(232,221,208,0.4), transparent 50%);
+    }
+
+    .hero-title-overlay {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      text-align: center; z-index: 2;
+    }
+
+    .hero-title-overlay h1 {
+      font-family: var(--font-main); font-weight: 700;
+      font-size: clamp(2rem, 6vw, 4.5rem); color: var(--navy);
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .scroll-cue {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      font-size: 0.85rem; color: var(--navy); opacity: 0.7;
+      animation: gentlePulse 3s ease-in-out infinite;
+    }
+
+    @keyframes gentlePulse {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-6px); }
+    }
+
+    /* Typography & Text Sections */
+    .text-section {
+      max-width: var(--max-content-width);
+      margin: 0 auto;
+      padding: 80px 28px;
+    }
+    .text-section p { margin-bottom: 1.6em; font-size: var(--fs-body); line-height: 1.85; }
+    .drop-cap::first-letter {
+      font-size: 3.2em; float: left; color: var(--crimson);
+      font-weight: 700; margin-right: 8px; margin-top: 6px; line-height: 0.8;
+    }
+    .highlight-crimson { color: var(--crimson); font-weight: 600; }
+    .highlight-teal { color: var(--teal); font-weight: 600; }
+    .emphasis-line {
+      border-left: 3px solid var(--crimson);
+      padding-left: 16px;
+      font-style: italic;
+      margin-top: 28px;
+    }
+    .emphasis-line-teal {
+      border-left: 3px solid var(--teal);
+      padding-left: 16px;
+      font-style: italic;
+      margin-top: 28px;
+    }
+    .italic { font-style: italic; }
+    .thesis-line {
+      font-size: 1.3em;
+      color: var(--teal);
+      text-align: center;
+      margin-top: 40px;
+      font-weight: 600;
+    }
+    .section-heading {
+      font-size: calc(var(--fs-section-title) * 0.5);
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 24px;
+    }
+    .section-heading-crimson {
+      font-size: calc(var(--fs-section-title) * 0.5);
+      font-weight: 600;
+      color: var(--crimson);
+      text-align: center;
+      max-width: var(--max-content-width);
+      margin: 0 auto 24px;
+      padding: 0 28px;
+    }
+
+    /* Scroll Progress Bar */
+    .scroll-progress {
+      position: fixed; top: 0; left: 0;
+      height: 3px; background: var(--teal);
+      z-index: 200; width: 0;
+      transition: none; /* GSAP handles it */
+    }
+
+    /* Watercolor Image Sections */
+    .watercolor-section {
+      width: 100%;
+      overflow: hidden; /* for parallax + scale */
+    }
+    .watercolor-section img {
+      width: 100%; height: auto; display: block;
+      border-radius: 4px;
+      will-change: transform, opacity, filter;
+    }
+    .image-caption {
+      text-align: center;
+      font-style: italic;
+      color: #888;
+      font-size: var(--fs-caption);
+      padding: 16px 28px;
+      max-width: var(--max-content-width);
+      margin: 0 auto;
+    }
+
+    /* Full-Bleed Images */
+    .full-bleed-image {
+      width: 100vw;
+      margin-left: calc(-50vw + 50%);
+      overflow: hidden;
+    }
+    .full-bleed-image img {
+      width: 100%; height: auto; display: block;
+      will-change: transform, opacity, filter;
+    }
+
+    /* Chart Sections */
+    .chart-section {
+      padding: 60px 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .chart-scroll-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 12px;
+    }
+    .chart-scroll-hint {
+      text-align: center; font-size: 0.8rem; color: #aaa;
+      margin-top: 8px; display: none;
+    }
+    @media (max-width: 768px) { .chart-scroll-hint { display: block; } }
+
+    .chart-legend {
+      display: flex; gap: 24px; justify-content: center;
+      margin-top: 16px; flex-wrap: wrap; font-size: 0.85rem;
+    }
+    .chart-legend-item { display: flex; align-items: center; gap: 8px; }
+    .chart-legend-swatch {
+      width: 16px; height: 16px; border-radius: 3px; flex-shrink: 0;
+    }
+
+    /* Animated Bar Chart */
+    .animated-bar-wrapper {
+      width: 100%;
+      max-width: 940px;
+      position: relative;
+      margin: 40px auto;
+    }
+
+    .animated-bar-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: calc(var(--fs-section-title) * 0.5);
+      text-align: center;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .animated-bar-subtitle {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 400;
+      font-size: clamp(12px, 1.8vw, 15px);
+      text-align: center;
+      color: #6B7D94;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    .animated-bar-year-display {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: clamp(31px, 6vw, 50px);
+      text-align: right;
+      color: #394A62;
+      opacity: 0.85;
+      position: absolute;
+      top: 60px;
+      right: 0;
+      pointer-events: none;
+      z-index: 2;
+      transition: opacity 0.3s ease;
+      letter-spacing: -0.03em;
+      user-select: none;
+      line-height: 1;
+    }
+
+    .animated-bar-year-display.active {
+      opacity: 0.9;
+    }
+
+    #animated-bar-chart-container {
+      position: relative;
+      z-index: 1;
+    }
+
+    .animated-bar-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .animated-bar-play-btn {
+      background: rgba(57, 74, 98, 0.08);
+      border: 1px solid rgba(57, 74, 98, 0.2);
+      color: #394A62;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 8px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    .animated-bar-play-btn:hover {
+      background: rgba(57, 74, 98, 0.14);
+      border-color: rgba(57, 74, 98, 0.3);
+    }
+
+    .animated-bar-play-btn .icon {
+      font-size: 11px;
+    }
+
+    .animated-bar-year-pills {
+      display: flex;
+      gap: 4px;
+    }
+
+    .animated-bar-year-pill {
+      background: rgba(57, 74, 98, 0.06);
+      border: 1px solid rgba(57, 74, 98, 0.15);
+      color: #6B7D94;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 7px 14px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      letter-spacing: 0.01em;
+    }
+
+    .animated-bar-year-pill:hover {
+      background: rgba(57, 74, 98, 0.12);
+      color: #394A62;
+    }
+
+    .animated-bar-year-pill.active {
+      background: rgba(139, 26, 26, 0.12);
+      border-color: rgba(139, 26, 26, 0.4);
+      color: #8B1A1A;
+    }
+
+    .animated-bar-speed-toggle {
+      background: rgba(57, 74, 98, 0.06);
+      border: 1px solid rgba(57, 74, 98, 0.15);
+      color: #6B7D94;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 11px;
+      padding: 7px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .animated-bar-speed-toggle:hover {
+      background: rgba(57, 74, 98, 0.12);
+      color: #394A62;
+    }
+
+    .animated-bar-speed-toggle.fast {
+      background: rgba(26, 42, 80, 0.2);
+      border-color: rgba(26, 42, 80, 0.4);
+      color: #1a2a50;
+    }
+
+    /* Tooltip */
+    .animated-bar-tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: rgba(57, 74, 98, 0.95);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      color: #FFFFFF;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      transform: translate(-50%, -100%);
+    }
+
+    .animated-bar-tooltip .tt-month {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .animated-bar-tooltip .tt-value {
+      font-size: 18px;
+      font-weight: 600;
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: -0.02em;
+    }
+
+    .animated-bar-tooltip .tt-year {
+      font-size: 11px;
+      color: #7A8A9E;
+    }
+
+    /* Bed Chart Tooltip */
+    .bed-chart-tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: rgba(57, 74, 98, 0.95);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: #FFFFFF;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      transform: translate(-50%, -100%);
+    }
+
+    /* Rainy season bracket */
+    .animated-bar-rainy-label {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      fill: rgba(139, 26, 26, 0.6);
+    }
+
+    .animated-bar-rainy-bracket {
+      stroke: rgba(139, 26, 26, 0.35);
+      stroke-width: 1.5;
+      fill: none;
+    }
+
+    /* SVG text styles */
+    .animated-bar-month-label {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      fill: #6B7D94;
+    }
+
+    .animated-bar-count-label {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      fill: #394A62;
+    }
+
+    .animated-bar-axis-tick {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      fill: #8A9AAE;
+    }
+
+    @media (max-width: 600px) {
+      .animated-bar-month-label { font-size: 11px !important; }
+      .animated-bar-count-label { font-size: 10px !important; }
+      .animated-bar-controls { gap: 8px; }
+      .animated-bar-year-pill { padding: 6px 10px; font-size: 12px; }
+      .animated-bar-play-btn { padding: 7px 14px; font-size: 12px; }
+    }
+
+    /* Footer */
+    .site-footer {
+      background: #2a1f1a; color: var(--text-light); text-align: center;
+      padding: 60px 28px; border-top: 3px solid rgba(2, 96, 91, 0.5);
+    }
+    .site-footer * { color: var(--text-light); font-family: var(--font-main); }
+    .footer-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px; }
+    .footer-author { font-size: 0.9rem; font-weight: 400; opacity: 0.8; margin-bottom: 20px; }
+    .footer-sources { font-size: 0.8rem; opacity: 0.6; line-height: 1.7; margin-bottom: 16px; }
+    .footer-year { font-size: 0.8rem; opacity: 0.5; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-text-overlay {
+        position: relative; right: auto; top: auto; transform: none;
+        max-width: 100%; margin: 0 16px 20px;
+        border-radius: 6px; padding: 24px;
+      }
+      .text-section { padding: 50px 20px; }
+      .emphasis-line, .emphasis-line-teal { margin-top: 28px !important; }
+    }
+    @media (max-width: 480px) {
+      .text-section { padding: 40px 16px; }
+      .text-section p { line-height: 1.75; }
+      .image-caption { padding: 0 16px; font-size: 0.8rem; }
+      .chart-legend { gap: 16px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. SCROLL PROGRESS BAR -->
+  <div class="scroll-progress"></div>
+
+  <!-- 2. HERO WRAPPER -->
+  <section class="hero-wrapper" id="heroWrapper">
+    <!-- Scene layer (behind clouds) -->
+    <div class="hero-scene" id="heroScene">
+      <!-- REPLACE SRC WITH: https://photos.app.goo.gl/EbPuK2mjfv7X8sZt8 -->
+      <img id="heroImgTop" class="hero-img hero-img-top" src="https://arthurmichael72.github.io/images/cloud-bk.png" alt="Mothers harvesting groundnuts" />
+      <!-- REPLACE SRC WITH: https://photos.app.goo.gl/nsNLiSWRpmBnxG5M9 -->
+      <img id="heroImgBottom" class="hero-img hero-img-bottom" src="https://arthurmichael72.github.io/images/Salima-bk.png" alt="Second hero image" />
+      <div class="hero-text-overlay" id="heroOverlay">
+        <p>Salima watches the clouds gather on the horizon and smiles. The rains are coming, harvest season at last. But as quickly as joy crosses her face, a shadow follows.</p>
+        <p>In West Mamprusi, the rains bring life to the crops, but they also bring death to the children.</p>
+      </div>
+    </div>
+    <!-- Cloud layer (on top) -->
+    <div class="hero-clouds" id="heroClouds">
+      <!--<div class="cloud-layer cloud-layer-1"></div>
+      <div class="cloud-layer cloud-layer-2"></div>-->
+      <div class="hero-title-overlay" id="heroTitle">
+        <h1>Heavy Weight on<br>Small Shoulders</h1>
+      </div>
+      <div class="scroll-cue" id="scrollCue">Scroll to begin ↓</div>
+    </div>
+  </section>
+
+  <!-- 3. INTRO TEXT -->
+  <section class="text-section">
+    <p class="drop-cap">West Mamprusi District lies in Ghana's North East Region, a land of sprawling 
+    compounds, bustling markets, and vast shea nut groves. Here, life moves with the seasons. 
+    When the rains arrive between May and October, mothers like Salima spend time on their 
+    groundnut fields to harvest the earth's gifts. But this is also the season when mosquitoes 
+    breed in every puddle, and every water pot.</p>
+  </section>
+
+  <!-- 4. ISOTYPE CHART -->
+  <section class="chart-section" id="isotype-section" style="padding: 0;">
+    <div id="isotype-react-root"></div>
+  </section>
+
+  <!-- NEW WRITE-UP -->
+  <section class="text-section">
+    <p>Despite Ghana's meaningful strides in the fight against malaria, the disease remains endemic. According to the 2024 World Malaria Report, Ghana recorded 6.55 million cases in 2023 alone. With Ghana's national population estimated at 35.7 million in 2026, 6.55 million cases represent nearly 20% of the entire country. This is the equivalent of one out of every five people you meet across Ghana being affected. That was the nation's burden. In West Mamprusi, the weight fell heaviest on the smallest shoulders.</p>
+  </section>
+
+  <!-- NEW CHART -->
+  <section class="chart-section" id="national-burden-section" style="padding: 0;">
+    <div id="national-burden-react-root"></div>
+  </section>
+
+  <!-- NEW WRITE-UP -->
+  <section class="text-section">
+    <p>Salima is a mother of two who rises before dawn to fetch water and tends her groundnut farm until dusk. Her hands know the rhythm of planting and harvesting, but her heart knows a different rhythm, the frantic beating when her child's forehead burns with fever.</p>
+    <p>Children like Ali fill their school's playgrounds with laughter when they are well. They chase guinea 
+    fowl through the yards and help their mothers carry water from the borehole. When malaria 
+    strikes, classrooms are left empty and playgrounds fall silent.</p>
+  </section>
+
+  
+  <!-- 6. TEXT — Ali and the playgrounds 
+  <section class="text-section">
+    <p>Children like Ali fill the playgrounds with laughter when they are well. They chase guinea 
+    fowl through the yards and help their mothers carry water from the borehole. When malaria 
+    strikes, the playgrounds fall silent.</p>
+  </section> -->
+
+  <!-- 7. IMAGE — Empty playground -->
+  <section class="watercolor-section">
+    <!-- REPLACE SRC WITH: https://photos.app.goo.gl/x8TQ6783ZSVR45M48 -->
+    <img src="https://arthurmichael72.github.io/images/empty%20playground.png" alt="Empty playground" loading="lazy" />
+    <p class="image-caption">A community playground in West Mamprusi emptied by malaria.</p>
+  </section>
+
+  <!-- 8. TEXT — 204,498 classroom comparison -->
+  <section class="text-section">
+    <p>In 2015, hospitals across West Mamprusi recorded <span class="highlight-crimson">204,498</span> admissions 
+    of children under five battling with malaria. That can be compared to 850 standard 6-unit primary classroom blocks
+    in the North East Region left empty due to sick children. Enough to fill the Tamale Sport Stadium ten times over</p>
+  </section>
+
+  <!-- 9. IMAGE — Stadium (full-bleed) -->
+  <section class="full-bleed-image">
+    <h3 class="section-heading-crimson">Enough to Fill Tamale Stadium — Ten Times Over</h3>
+    <!-- REPLACE SRC WITH: https://photos.app.goo.gl/unqgLLotFsUbLsSF9 -->
+    <img src="https://arthurmichael72.github.io/images/stadium.jpg" alt="Tamale Stadium" loading="lazy" />
+    <p class="image-caption">In the years before SMC, malaria admissions among children under five in West Mamprusi could fill Tamale Stadium ten times.</p>
+  </section>
+
+  <!-- 10. TEXT — Crisis narrative -->
+  <section class="text-section" id="crisis-text">
+    <p>Compounds that should have echoed with the laughter of playing children instead fell quiet 
+    with worry. Community playgrounds stands empty, swings occupied only by dust carried on the 
+    breeze. A mother might carry her child to the hospital two, three times in a single 
+    rainy season. Each journey was a day lost from the farm. Each treatment was a dent in the 
+    family's meager savings. Each sleepless night of anxious vigil was a piece of a mother's 
+    heart worn away.</p>
+  </section>
+
+  <!-- 11. CHART — Yearly admissions pre-SMC -->
+  <section class="chart-section" id="admissions-chart-section">
+    <h3 style="text-align:center; font-size:calc(var(--fs-section-title) * 0.5); font-weight:600; color:var(--navy); margin-bottom:24px;">YEARLY MALARIA ADMISSIONS (2015 - 2019)</h3>
+    <div class="chart-scroll-wrapper" id="admissions-wrapper">
+      <svg id="viz-admissions"></svg>
+    </div>
+    <p class="chart-scroll-hint">← Scroll chart horizontally →</p>
+    <div class="chart-legend">
+      <div class="chart-legend-item">
+        <div class="chart-legend-swatch" style="background:#394a62"></div>
+        <span style="color:#555">1 ICON = 5,000 CASES</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12. TEXT — "Something had to change" -->
+  <section class="text-section">
+    <p>By 2019, the district still recorded over <span class="highlight-crimson">161,657</span> of children under-five years admissions. 
+    The numbers were staggering, and behind every number was a child, a mother, a family caught 
+    in malaria's grip.</p>
+    <p>The situation seemed hopeless. Climate patterns were shifting, making rainy seasons 
+    less predictable but no less deadly. The population was growing, but health infrastructure 
+    struggled to keep pace. Mothers like Salima lived in perpetual anxiety, watching the clouds 
+    gather each year and knowing what followed the rain.</p>
+    <p>The cycle repeated: rains came, mosquitoes bred, children fell ill, mothers rushed to 
+    hospitals, harvests went ungathered, families grew poorer, and the next rainy season arrived 
+    to begin the pattern again.</p>
+
+    <!-- NEW ANIMATED BAR CHART -->
+    <div class="animated-bar-wrapper">
+      <div class="animated-bar-title">Before SMC: A Pattern That Repeated Every Year</div>
+      <div class="animated-bar-subtitle">Monthly malaria admissions among children under 5 — West Mamprusi District, 2015–2019</div>
+      <div class="animated-bar-year-display" id="animatedBarYearDisplay">2015</div>
+      <div id="animated-bar-chart-container" role="img" aria-label="Animated horizontal bar chart showing monthly malaria admissions for children under 5 in West Mamprusi District from 2015 to 2019. Rainy season months June through October consistently show the highest admissions each year.">
+        <figure style="margin: 0;">
+          <div id="animated-bar-chart"></div>
+          <figcaption class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;">
+            This chart shows malaria admissions spiking dramatically during the rainy season (June–October) every year from 2015 to 2019 in the West Mamprusi District, before Seasonal Malaria Chemoprevention was introduced. Peak admissions ranged from 15,000 to over 22,000 per month during the rainy season.
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="animated-bar-controls">
+        <button class="animated-bar-play-btn" id="animatedBarPlayBtn" aria-label="Play or pause animation">
+          <span class="icon" id="animatedBarPlayIcon">❚❚</span>
+          <span id="animatedBarPlayLabel">Pause</span>
+        </button>
+        <div class="animated-bar-year-pills" id="animatedBarYearPills"></div>
+        <button class="animated-bar-speed-toggle" id="animatedBarSpeedBtn" aria-label="Toggle animation speed">1×</button>
+      </div>
+    </div>
+
+    <div class="animated-bar-tooltip" id="animatedBarTooltip">
+      <div class="tt-year"></div>
+      <div class="tt-month"></div>
+      <div class="tt-value"></div>
+    </div>
+
+    <p class="emphasis-line">Something had to change.</p>
+  </section>
+
+  <!-- 13. IMAGE — Village compound -->
+  <section class="watercolor-section">
+    <!-- REPLACE SRC WITH: https://photos.app.goo.gl/rmvU5uDC493Hcxk46 -->
+    <img src="https://arthurmichael72.github.io/images/Birnigoomni-wall.jpg" alt="Village compound" loading="lazy" />
+    <p class="image-caption">The Birnigoomni wall</p>
+  </section>
+
+  <!-- 14. TEXT — "A New Shield" -->
+  <section class="text-section">
+    <p>In the mid-1700s, King NaJeringa of the Mamprusi built a wall that stood eleven feet high 
+    and stretched for twenty-five kilometers. The <span class="italic">Birnigoomni</span>, as it was locally 
+    named, protected his people from slave raiders. It was a barrier between danger and the 
+    community, a shield of defence built on determination and care. In 2020, a new shield 
+    arrived in West Mamprusi.</p>
+    <p>Seasonal Malaria Chemoprevention (SMC) came to the district like the <span class="italic">Birnigoomni</span> 
+    of old. But instead of mud and stone, this wall was built with medicine and dedication. 
+    Community Health Volunteers became its builders, walking sometimes on dusty paths, from compound to compound during the 
+    rainy months, supervising the administration of the preventive medicines in the mouths of children before the mosquitoes 
+    could strike. They know every family, every child, every compound gate. <span class="emphasis-line-teal" style="display:inline-block; margin-top:0 !important;">The change was swift.</span></p>
+    <p>Hospital admissions dropped to <span class="highlight-teal">122,553</span> in the first year of SMC implementation. 
+    By 2024, they had fallen to <span class="highlight-teal">110,260</span>.</p>
+  </section>
+
+  <!-- 15. CHART — Full admissions comparison -->
+  <section class="chart-section" id="comparison-chart-section">
+    <h3 style="text-align:center; font-size:calc(var(--fs-section-title) * 0.5); font-weight:600; color:var(--navy); margin-bottom:24px;">YEARLY MALARIA ADMISSIONS (2015 - 2024)</h3>
+    <div class="chart-scroll-wrapper" id="comparison-wrapper">
+      <svg id="viz-comparison"></svg>
+    </div>
+    <p class="chart-scroll-hint">← Scroll chart horizontally →</p>
+    <div class="chart-legend" id="comparison-legend">
+      <div class="chart-legend-item">
+        <div class="chart-legend-swatch" style="background:#9f1c20"></div>
+        <span style="color:#555">Before SMC (2015–2019)</span>
+      </div>
+      <div class="chart-legend-item">
+        <div class="chart-legend-swatch" style="background:#02605b"></div>
+        <span style="color:#555">After SMC (2020–2024)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16. CHART — Yearly deaths -->
+  <section class="chart-section" id="mortality-chart-section">
+    <h3 style="text-align:center; font-size:calc(var(--fs-section-title) * 0.5); font-weight:600; color:var(--navy); margin-bottom:24px;">YEARLY MALARIA DEATHS (2015 - 2024)</h3>
+    <div style="max-width: 1100px; margin: 0 auto;">
+      <img src="https://arthurmichael72.github.io/images/malaria%20deaths.png" alt="Yearly Malaria Deaths" style="width: 100%; height: auto; display: block;" crossorigin="anonymous" />
+    </div>
+  </section>
+
+
+<!-- 16b. IMAGE — Community Health Volunteer -->
+  <section class="watercolor-section">
+    <!-- REPLACE SRC WITH: https://photos.app.goo.gl/coVZCdMEHYCqaEYj7 -->
+    <img src="https://arthurmichael72.github.io/images/community-health-volunteer.jpg" alt="Community Health Volunteer" loading="lazy" />
+    <p class="image-caption">A Community Health Volunteer makes her way through the compounds of West Mamprusi.</p>
+  </section>
+
+
+
+  <!-- 17. TEXT — "Send them home healthy" -->
+  <section class="text-section">
+    <p>Take all the children who would have filled sick wards in 2015. Now send half of them home 
+    healthy, <span class="highlight-teal">102,249</span> children in the classroom instead of lying in 
+    hospital beds. That is <span class="highlight-teal">102,249</span> more days for mothers to harvest their crops. 
+    That is <span class="highlight-teal">102,249</span> more nights of peaceful sleep instead of anxious vigils by a 
+    feverish child's side.</p>
+    <p>The playgrounds began to fill again. The sounds of children returned to compounds across 
+    West Mamprusi. Mothers like Salima could watch the gathering clouds and feel joy without 
+    the shadow of dread.</p>
+  </section>
+
+  <!-- 18. IMAGE — Children playing -->
+  <section class="watercolor-section">
+    <!-- REPLACE SRC WITH: https://photos.app.goo.gl/fe557BYxKr19JVkX6 -->
+    <img src="https://arthurmichael72.github.io/images/Children-playing.jpg" alt="Children playing" loading="lazy" />
+    <p class="image-caption">Children playing</p>
+  </section>
+
+  <!-- 19. TEXT — "Turning the Tide" -->
+  <section class="text-section">
+    <h2 class="section-heading">Turning the Tide</h2>
+    <p>Without SMC, West Mamprusi's rainy-season transmission, which is already intense, might have soared even higher as climate patterns shifted and the population increased. Instead, the tide began to turn. But this is not the end of the story.</p>
+    <p>Programs like SMC do not eliminate malaria overnight. They shift the trajectory. Continued adherence to prevention interventions like sleeping under insecticide-treated nets, seeking treatment early, and supporting Community Health Volunteers will keep the tide turning.</p>
+    <p>Children like <span class="highlight-teal">Ali will be able to go to school during the rainy seasons</span>. They will live to celebrate many birthdays and see their dreams fulfilled. They will rejoice in the rain, filling playgrounds with sounds of joy and excitement. Community leaders will sit under their huts and watch the playground with pride. <span class="highlight-teal">Mothers like Salima will harvest their groundnuts in peace, no longer fearing what the rain brings.</span></p>
+  </section>
+
+  <!-- 20. IMAGE — Closing grandmother -->
+  <section class="watercolor-section">
+    <div class="reveal-slow">
+      <!-- REPLACE SRC WITH: https://photos.app.goo.gl/EbPuK2mjfv7X8sZt8 -->
+      <img src="https://arthurmichael72.github.io/images/salima-and-other-mothers.jpg" alt="Salima and other mothers" loading="lazy" />
+    </div>
+    <p class="image-caption">Salima and other mothers harvesting groundnuts from the farm</p>
+  </section>
+
+  <!-- 21. TEXT — Final closing + thesis line -->
+  <section class="text-section">
+    <p>Remains of the <span class="italic">Birnigoomni</span> wall still stands today as a testament to what 
+    communities can build when they commit to protecting their own. SMC is West Mamprusi's new 
+    wall, a shield of defence for a new generation. Behind every number in the data, there is a 
+    child who will grow up healthy, a mother who will sleep sound, and a community that chose to 
+    fight back.</p>
+    <p class="thesis-line">The numbers tell part of the story. The people tell the rest.</p>
+  </section>
+
+  <!-- 22. FOOTER -->
+  <footer class="site-footer">
+    <p class="footer-title">Heavy Weight on Small Shoulders</p>
+    <p class="footer-author">Michael Arthur —  Northeastern University</p>
+    <p class="footer-sources">Data Sources:<br>Ghana Health Service<br>
+      National Malaria Elimination Program — Ghana</p>
+    <p class="footer-year">2026</p>
+  </footer>
+
+  <script type="module" src="/src/main.tsx"></script>
+  <script>
+    // 2. Bed Charts
+    function buildBedChart(containerId, data, showSMCLine) {
+      var container = document.getElementById(containerId);
+      if(!container) return;
+      var ICON_W = 18, ICON_H = 12, GAP = 2;
+      var COL_GAP = 24;
+      var COLS_PER_STACK = 4; // icons per row within a column
+      var COL_W = (ICON_W * COLS_PER_STACK) + (GAP * (COLS_PER_STACK - 1));
+      
+      var maxIcons = Math.max(...data.map(d => d.icons));
+      var maxRows = Math.ceil(maxIcons / COLS_PER_STACK);
+      
+      var chartH = maxRows * (ICON_H + GAP) + 60; // room for labels
+      var chartW = data.length * (COL_W + COL_GAP);
+      
+      var bedSVG = function(color, x, y) {
+        return '<g class="bed-icon" transform="translate(' + x + ',' + y + ')" style="cursor:pointer;"><svg viewBox="0 0 60 40" width="' + ICON_W + '" height="' + ICON_H + '">' +
+          '<rect x="5" y="20" width="50" height="3" rx="1" fill="' + color + '"/>' +
+          '<rect x="5" y="23" width="2" height="14" fill="' + color + '"/>' +
+          '<rect x="53" y="23" width="2" height="14" fill="' + color + '"/>' +
+          '<circle cx="15" cy="14" r="5" fill="' + color + '"/>' +
+          '<rect x="20" y="12" width="30" height="8" rx="2" fill="' + color + '" opacity="0.7"/>' +
+          '</svg></g>';
+      };
+
+      var html = '';
+      for (var i = 0; i < data.length; i++) {
+        var d = data[i];
+        var colX = i * (COL_W + COL_GAP);
+        
+        // Draw icons bottom up
+        for (var j = 0; j < d.icons; j++) {
+          var iconCol = j % COLS_PER_STACK;
+          var iconRow = Math.floor(j / COLS_PER_STACK);
+          var x = colX + iconCol * (ICON_W + GAP);
+          var y = chartH - 40 - (iconRow + 1) * (ICON_H + GAP);
+          html += bedSVG(d.color, x, y);
+        }
+        
+        // Value label
+        html += '<text x="' + (colX + COL_W/2) + '" y="' + (chartH - 40 - Math.ceil(d.icons/COLS_PER_STACK)*(ICON_H+GAP) - 10) + '" text-anchor="middle" font-size="12" font-weight="600" fill="' + d.color + '">' + d.value + '</text>';
+        
+        // Year label
+        html += '<text x="' + (colX + COL_W/2) + '" y="' + (chartH - 15) + '" text-anchor="middle" font-size="14" fill="#555">' + d.year + '</text>';
+      }
+      
+      if (showSMCLine) {
+        var lineX = 4 * (COL_W + COL_GAP) + COL_W + COL_GAP/2;
+        html += '<line x1="' + lineX + '" y1="20" x2="' + lineX + '" y2="' + (chartH - 30) + '" stroke="#555" stroke-width="1" stroke-dasharray="4 4"/>';
+        html += '<text x="' + lineX + '" y="15" text-anchor="middle" font-size="12" fill="#555" font-style="italic">SMC starts</text>';
+      }
+      
+      container.setAttribute('width', chartW);
+      container.setAttribute('height', chartH);
+      container.style.display = 'block';
+      container.style.margin = '0 auto';
+      container.innerHTML = html;
+
+      var tooltip = document.getElementById('bedChartTooltip');
+      if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'bedChartTooltip';
+        tooltip.className = 'bed-chart-tooltip';
+        tooltip.textContent = '1 icon = 5,000 cases';
+        document.body.appendChild(tooltip);
+      }
+
+      var icons = container.querySelectorAll('.bed-icon');
+      icons.forEach(function(icon) {
+        icon.addEventListener('mouseenter', function(e) {
+          tooltip.style.opacity = '1';
+          tooltip.style.left = e.clientX + 'px';
+          tooltip.style.top = (e.clientY - 15) + 'px';
+        });
+        icon.addEventListener('mousemove', function(e) {
+          tooltip.style.left = e.clientX + 'px';
+          tooltip.style.top = (e.clientY - 15) + 'px';
+        });
+        icon.addEventListener('mouseleave', function() {
+          tooltip.style.opacity = '0';
+        });
+      });
+    }
+
+    buildBedChart('viz-admissions', [
+      {year:'2015', value:'204,498', icons:41, color:'#394a62'},
+      {year:'2016', value:'182,453', icons:36, color:'#394a62'},
+      {year:'2017', value:'161,157', icons:32, color:'#394a62'},
+      {year:'2018', value:'157,366', icons:31, color:'#394a62'},
+      {year:'2019', value:'161,657', icons:32, color:'#394a62'}
+    ], false);
+
+    buildBedChart('viz-comparison', [
+      {year:'2015', value:'204,498', icons:41, color:'#9f1c20'},
+      {year:'2016', value:'182,453', icons:36, color:'#9f1c20'},
+      {year:'2017', value:'161,157', icons:32, color:'#9f1c20'},
+      {year:'2018', value:'157,366', icons:31, color:'#9f1c20'},
+      {year:'2019', value:'161,657', icons:32, color:'#9f1c20'},
+      {year:'2020', value:'122,553', icons:25, color:'#02605b'},
+      {year:'2021', value:'142,938', icons:29, color:'#02605b'},
+      {year:'2022', value:'142,251', icons:28, color:'#02605b'},
+      {year:'2023', value:'128,087', icons:26, color:'#02605b'},
+      {year:'2024', value:'110,260', icons:22, color:'#02605b'}
+    ], true);
+
+    // 3. Animated Bar Chart
+    (function() {
+      const malariaData = {
+        2015: { January: 15388, February: 13375, March: 14175, April: 15196, May: 13713, June: 15602, July: 19977, August: 21520, September: 18774, October: 22446, November: 18844, December: 15488 },
+        2016: { January: 13470, February: 14578, March: 10656, April: 13188, May: 13843, June: 16848, July: 17851, August: 17080, September: 17070, October: 18815, November: 16360, December: 12694 },
+        2017: { January: 13275, February: 10642, March: 9624, April: 9585, May: 11785, June: 13736, July: 15931, August: 16974, September: 17495, October: 16892, November: 13261, December: 11957 },
+        2018: { January: 12094, February: 10243, March: 8922, April: 10550, May: 12010, June: 13228, July: 13059, August: 14856, September: 14717, October: 18200, November: 17046, December: 12441 },
+        2019: { January: 11761, February: 10112, March: 9951, April: 9361, May: 11176, June: 15110, July: 18857, August: 15655, September: 14205, October: 15261, November: 17693, December: 12515 }
+      };
+
+      const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const rainyMonths = ['June','July','August','September','October'];
+      const years = [2015, 2016, 2017, 2018, 2019];
+      const globalMax = 23000;
+      const formatNum = d3.format(',');
+
+      const containerEl = document.getElementById('animated-bar-chart');
+      if (!containerEl) return;
+      
+      const wrapperWidth = Math.min(document.querySelector('.animated-bar-wrapper').clientWidth, 940);
+
+      const margin = { top: 10, right: 72, bottom: 40, left: 90 };
+      const width = wrapperWidth - margin.left - margin.right;
+      const barHeight = 28;
+      const barGap = 6;
+      const height = months.length * (barHeight + barGap) - barGap;
+
+      const svg = d3.select('#animated-bar-chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+        .style('width', '100%')
+        .style('height', 'auto');
+
+      const g = svg.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+      const xScale = d3.scaleLinear().domain([0, globalMax]).range([0, width]);
+      const yScale = d3.scaleBand().domain(months).range([0, height]).paddingInner(barGap / (barHeight + barGap));
+
+      const xTicks = [0, 5000, 10000, 15000, 20000];
+      g.selectAll('.grid-line')
+        .data(xTicks.slice(1))
+        .enter()
+        .append('line')
+        .attr('class', 'grid-line')
+        .attr('x1', d => xScale(d))
+        .attr('x2', d => xScale(d))
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', 'rgba(57, 74, 98, 0.1)')
+        .attr('stroke-width', 1);
+
+      g.selectAll('.x-tick-label')
+        .data(xTicks)
+        .enter()
+        .append('text')
+        .attr('class', 'animated-bar-axis-tick')
+        .attr('x', d => xScale(d))
+        .attr('y', height + 24)
+        .attr('text-anchor', 'middle')
+        .text(d => d === 0 ? '0' : formatNum(d));
+
+      g.selectAll('.month-label')
+        .data(months)
+        .enter()
+        .append('text')
+        .attr('class', 'animated-bar-month-label')
+        .attr('x', -12)
+        .attr('y', d => yScale(d) + barHeight / 2)
+        .attr('dy', '0.35em')
+        .attr('text-anchor', 'end')
+        .style('font-size', width < 400 ? '11px' : '13px')
+        .text(d => width < 500 ? d.slice(0, 3) : d);
+
+      const barsG = g.append('g').attr('class', 'bars-group');
+
+      const bars = barsG.selectAll('.bar')
+        .data(months)
+        .enter()
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('x', 0)
+        .attr('y', d => yScale(d))
+        .attr('width', 0)
+        .attr('height', barHeight)
+        .attr('rx', 4)
+        .attr('ry', 4)
+        .attr('fill', d => rainyMonths.includes(d) ? '#8B1A1A' : '#1a2a50')
+        .style('cursor', 'pointer');
+
+      const countLabels = barsG.selectAll('.count-label')
+        .data(months)
+        .enter()
+        .append('text')
+        .attr('class', 'animated-bar-count-label')
+        .attr('x', 8)
+        .attr('y', d => yScale(d) + barHeight / 2)
+        .attr('dy', '0.35em')
+        .text('0');
+
+      const juneY = yScale('June');
+      const octY = yScale('October') + barHeight;
+      const bracketX = width + 14;
+      const bracketW = 10;
+
+      g.append('path')
+        .attr('class', 'animated-bar-rainy-bracket')
+        .attr('d', `M${bracketX},${juneY} L${bracketX + bracketW},${juneY} L${bracketX + bracketW},${octY} L${bracketX},${octY}`);
+
+      g.append('text')
+        .attr('class', 'animated-bar-rainy-label')
+        .attr('transform', `translate(${bracketX + bracketW + 6}, ${(juneY + octY) / 2}) rotate(-90)`)
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.35em')
+        .text('RAINY SEASON');
+
+      const tooltip = document.getElementById('animatedBarTooltip');
+
+      bars.on('mouseenter', function(event, month) {
+        const val = currentDisplayValues[month] || 0;
+        tooltip.querySelector('.tt-year').textContent = currentYear;
+        tooltip.querySelector('.tt-month').textContent = month;
+        tooltip.querySelector('.tt-value').textContent = formatNum(Math.round(val));
+        tooltip.querySelector('.tt-value').style.color = '#FFFFFF';
+        tooltip.style.left = event.clientX + 'px';
+        tooltip.style.top = (event.clientY - 15) + 'px';
+        tooltip.style.opacity = '1';
+      })
+      .on('mousemove', function(event) {
+        const x = event.clientX;
+        const y = event.clientY - 15;
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      })
+      .on('mouseleave', function() {
+        tooltip.style.opacity = '0';
+      });
+
+      barsG.selectAll('.bar-hitarea')
+        .data(months)
+        .enter()
+        .append('rect')
+        .attr('x', 0)
+        .attr('y', d => yScale(d) - 2)
+        .attr('width', width)
+        .attr('height', barHeight + 4)
+        .attr('fill', 'transparent')
+        .style('cursor', 'pointer')
+        .on('mouseenter', function(event, month) {
+          const val = currentDisplayValues[month] || 0;
+          tooltip.querySelector('.tt-year').textContent = currentYear;
+          tooltip.querySelector('.tt-month').textContent = month;
+          tooltip.querySelector('.tt-value').textContent = formatNum(Math.round(val));
+          tooltip.querySelector('.tt-value').style.color = '#FFFFFF';
+          tooltip.style.left = event.clientX + 'px';
+          tooltip.style.top = (event.clientY - 15) + 'px';
+          tooltip.style.opacity = '1';
+          bars.filter(d => d === month).attr('opacity', 0.85);
+        })
+        .on('mousemove', function(event) {
+          tooltip.style.left = event.clientX + 'px';
+          tooltip.style.top = (event.clientY - 15) + 'px';
+        })
+        .on('mouseleave', function(event, month) {
+          tooltip.style.opacity = '0';
+          bars.filter(d => d === month).attr('opacity', 1);
+        });
+
+      const yearPillsEl = document.getElementById('animatedBarYearPills');
+      years.forEach(y => {
+        const pill = document.createElement('button');
+        pill.className = 'animated-bar-year-pill' + (y === 2015 ? ' active' : '');
+        pill.textContent = y;
+        pill.dataset.year = y;
+        pill.addEventListener('click', () => jumpToYear(y));
+        yearPillsEl.appendChild(pill);
+      });
+
+      let currentYear = 2015;
+      let currentYearIndex = 0;
+      let isPlaying = true;
+      let speedMultiplier = 1;
+      let animationId = null;
+      let currentDisplayValues = {};
+      let animStartTime = null;
+      let animState = 'filling'; 
+      let holdStartTime = null;
+
+      const FILL_DURATION = 10000; 
+      const HOLD_DURATION = 2500;
+      const RESET_DURATION = 500;
+
+      months.forEach(m => currentDisplayValues[m] = 0);
+
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+
+      function updateYearDisplay(year) {
+        document.getElementById('animatedBarYearDisplay').textContent = year;
+        document.querySelectorAll('.animated-bar-year-pill').forEach(p => {
+          p.classList.toggle('active', parseInt(p.dataset.year) === year);
+        });
+      }
+
+      function animateFrame(timestamp) {
+        if (!animStartTime) animStartTime = timestamp;
+
+        const yearData = malariaData[currentYear];
+        const elapsed = (timestamp - animStartTime) * speedMultiplier;
+
+        if (animState === 'filling') {
+          const progress = Math.min(elapsed / FILL_DURATION, 1);
+          const easedProgress = easeOutCubic(progress);
+          const currentAbsoluteValue = easedProgress * globalMax;
+
+          let allDone = true;
+          months.forEach(month => {
+            const target = yearData[month];
+            const val = Math.min(currentAbsoluteValue, target);
+            currentDisplayValues[month] = val;
+
+            if (val < target) allDone = false;
+          });
+
+          bars.attr('width', d => xScale(currentDisplayValues[d]));
+          countLabels
+            .attr('x', d => xScale(currentDisplayValues[d]) + 8)
+            .text(d => formatNum(Math.round(currentDisplayValues[d])));
+
+          if (progress >= 1) {
+            months.forEach(m => currentDisplayValues[m] = yearData[m]);
+            bars.attr('width', d => xScale(yearData[d]));
+            countLabels
+              .attr('x', d => xScale(yearData[d]) + 8)
+              .text(d => formatNum(yearData[d]));
+
+            animState = 'holding';
+            holdStartTime = timestamp;
+          }
+        } else if (animState === 'holding') {
+          const holdElapsed = (timestamp - holdStartTime) * speedMultiplier;
+          if (holdElapsed >= HOLD_DURATION) {
+            animState = 'resetting';
+            animStartTime = timestamp;
+          }
+        } else if (animState === 'resetting') {
+          const resetElapsed = (timestamp - animStartTime) * speedMultiplier;
+          const progress = Math.min(resetElapsed / RESET_DURATION, 1);
+
+          const yearData = malariaData[currentYear];
+          months.forEach(m => {
+            currentDisplayValues[m] = yearData[m] * (1 - progress);
+          });
+
+          bars.attr('width', d => xScale(Math.max(0, currentDisplayValues[d])));
+          countLabels
+            .attr('x', d => xScale(Math.max(0, currentDisplayValues[d])) + 8)
+            .text(d => formatNum(Math.round(Math.max(0, currentDisplayValues[d]))));
+
+          if (progress >= 1) {
+            currentYearIndex = (currentYearIndex + 1) % years.length;
+            currentYear = years[currentYearIndex];
+            updateYearDisplay(currentYear);
+
+            months.forEach(m => currentDisplayValues[m] = 0);
+            bars.attr('width', 0);
+            countLabels.attr('x', 8).text('0');
+
+            animState = 'filling';
+            animStartTime = null;
+          }
+        }
+
+        if (isPlaying) {
+          animationId = requestAnimationFrame(animateFrame);
+        }
+      }
+
+      function startAnimation() {
+        isPlaying = true;
+        animStartTime = null;
+        animationId = requestAnimationFrame(animateFrame);
+        updatePlayBtn();
+      }
+
+      function stopAnimation() {
+        isPlaying = false;
+        if (animationId) cancelAnimationFrame(animationId);
+        updatePlayBtn();
+      }
+
+      function togglePlay() {
+        if (isPlaying) {
+          stopAnimation();
+        } else {
+          animStartTime = null;
+          isPlaying = true;
+          animationId = requestAnimationFrame(animateFrame);
+          updatePlayBtn();
+        }
+      }
+
+      function updatePlayBtn() {
+        document.getElementById('animatedBarPlayIcon').textContent = isPlaying ? '❚❚' : '▶';
+        document.getElementById('animatedBarPlayLabel').textContent = isPlaying ? 'Pause' : 'Play';
+      }
+
+      function jumpToYear(year) {
+        if (animationId) cancelAnimationFrame(animationId);
+
+        currentYearIndex = years.indexOf(year);
+        currentYear = year;
+        updateYearDisplay(year);
+
+        months.forEach(m => currentDisplayValues[m] = 0);
+        bars.attr('width', 0);
+        countLabels.attr('x', 8).text('0');
+
+        animState = 'filling';
+        animStartTime = null;
+
+        if (isPlaying) {
+          animationId = requestAnimationFrame(animateFrame);
+        } else {
+          isPlaying = true;
+          updatePlayBtn();
+          animationId = requestAnimationFrame(animateFrame);
+        }
+      }
+
+      const speedBtn = document.getElementById('animatedBarSpeedBtn');
+      speedBtn.addEventListener('click', () => {
+        if (speedMultiplier === 1) {
+          speedMultiplier = 2;
+          speedBtn.textContent = '2×';
+          speedBtn.classList.add('fast');
+        } else if (speedMultiplier === 2) {
+          speedMultiplier = 4;
+          speedBtn.textContent = '4×';
+          speedBtn.classList.add('fast');
+        } else {
+          speedMultiplier = 1;
+          speedBtn.textContent = '1×';
+          speedBtn.classList.remove('fast');
+        }
+        animStartTime = null;
+        if (animState === 'holding') holdStartTime = performance.now();
+      });
+
+      document.getElementById('animatedBarPlayBtn').addEventListener('click', togglePlay);
+
+      updateYearDisplay(2015);
+      
+      // Start animation when scrolled into view
+      ScrollTrigger.create({
+        trigger: ".animated-bar-wrapper",
+        start: "top 80%",
+        onEnter: () => startAnimation(),
+        once: true
+      });
+    })();
+
+    // 4. GSAP Animations
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero Animations
+    gsap.to('#heroClouds', {
+      scrollTrigger: { trigger: '#heroWrapper', start: 'top top', end: '50% top', scrub: 0.6 },
+      y: '-100%', ease: 'none'
+    });
+
+    gsap.to('#heroTitle', {
+      scrollTrigger: { trigger: '#heroWrapper', start: '10% top', end: '30% top', scrub: 0.6 },
+      opacity: 0, y: -40, ease: 'none'
+    });
+
+    gsap.to('#scrollCue', {
+      scrollTrigger: { trigger: '#heroWrapper', start: '5% top', end: '15% top', scrub: 0.6 },
+      opacity: 0, ease: 'none'
+    });
+
+    gsap.fromTo('#heroImgTop',
+      { y: '-80%', opacity: 0, scale: 1.04 },
+      { scrollTrigger: { trigger: '#heroWrapper', start: '25% top', end: '45% top', scrub: 0.6 },
+        y: '0%', opacity: 1, scale: 1, ease: 'power2.out' }
+    );
+
+    gsap.fromTo('#heroImgBottom',
+      { y: '80%', opacity: 0, scale: 1.04 },
+      { scrollTrigger: { trigger: '#heroWrapper', start: '25% top', end: '45% top', scrub: 0.6 },
+        y: '0%', opacity: 1, scale: 1, ease: 'power2.out' }
+    );
+
+    gsap.fromTo('#heroOverlay',
+      { x: 60, opacity: 0 },
+      { scrollTrigger: { trigger: '#heroWrapper', start: '45% top', end: '55% top', scrub: 0.6 },
+        x: 0, opacity: 1, ease: 'power2.out' }
+    );
+
+    ScrollTrigger.create({
+      trigger: '#heroWrapper',
+      start: 'bottom top',
+      onEnter: () => { document.getElementById('heroClouds').style.display = 'none'; },
+      onLeaveBack: () => { document.getElementById('heroClouds').style.display = ''; }
+    });
+
+    // Scroll Progress Bar
+    gsap.to('.scroll-progress', {
+      scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom bottom', scrub: 0.3 },
+      width: '100%', ease: 'none'
+    });
+
+    // Text Sections
+    document.querySelectorAll('.text-section').forEach(section => {
+      const heading = section.querySelector('h2, h3, .section-heading, .section-heading-crimson');
+      const paragraphs = section.querySelectorAll('p');
+
+      if (heading) {
+        gsap.from(heading, {
+          scrollTrigger: { trigger: section, start: 'top 85%', toggleActions: 'play none none none' },
+          opacity: 0, y: 12, duration: 1, ease: 'cubic-bezier(0.4, 0.0, 0.2, 1)'
+        });
+      }
+
+      paragraphs.forEach((p, i) => {
+        gsap.from(p, {
+          scrollTrigger: { trigger: section, start: 'top 85%', toggleActions: 'play none none none' },
+          opacity: 0, y: 12, duration: 1,
+          delay: heading ? 0.2 + (i * 0.15) : (i * 0.15),
+          ease: 'cubic-bezier(0.4, 0.0, 0.2, 1)'
+        });
+      });
+
+      gsap.to(section, {
+        scrollTrigger: {
+          trigger: section,
+          start: 'bottom 40%',
+          end: 'bottom top',
+          scrub: 0.5
+        },
+        y: -8, ease: 'none'
+      });
+    });
+
+    // Images
+    document.querySelectorAll('.watercolor-section img').forEach(img => {
+      if (img.closest('.reveal-slow')) return; // handled separately
+      gsap.from(img, {
+        scrollTrigger: { trigger: img, start: 'top 90%', toggleActions: 'play none none none' },
+        opacity: 0, scale: 1.04, filter: 'blur(4px)',
+        duration: 1.2, ease: 'power2.out'
+      });
+
+      gsap.to(img, {
+        scrollTrigger: { trigger: img, start: 'top bottom', end: 'bottom top', scrub: true },
+        y: '-6%', ease: 'none'
+      });
+    });
+
+    document.querySelectorAll('.watercolor-section').forEach(section => {
+      gsap.to(section, {
+        scrollTrigger: {
+          trigger: section,
+          start: 'bottom 30%',
+          end: 'bottom top',
+          scrub: 0.5
+        },
+        y: -10, ease: 'none'
+      });
+    });
+
+    // Chart Sections
+    document.querySelectorAll('.chart-section').forEach(section => {
+      gsap.from(section, {
+        scrollTrigger: { trigger: section, start: 'top 85%', toggleActions: 'play none none none' },
+        opacity: 0, y: 12, duration: 1, ease: 'cubic-bezier(0.4, 0.0, 0.2, 1)'
+      });
+    });
+
+    // Closing Image Slow Reveal
+    document.querySelectorAll('.reveal-slow img').forEach(img => {
+      gsap.from(img, {
+        scrollTrigger: { trigger: img, start: 'top 88%', toggleActions: 'play none none none' },
+        opacity: 0, scale: 1.04, filter: 'blur(4px)',
+        duration: 1.6, ease: 'power2.out'
+      });
+      
+      gsap.to(img, {
+        scrollTrigger: { trigger: img, start: 'top bottom', end: 'bottom top', scrub: true },
+        y: '-6%', ease: 'none'
+      });
+    });
+
+    // Full Bleed Images
+    document.querySelectorAll('.full-bleed-image img').forEach(img => {
+      gsap.from(img, {
+        scrollTrigger: { trigger: img, start: 'top 90%', toggleActions: 'play none none none' },
+        opacity: 0, scale: 1.04, filter: 'blur(4px)',
+        duration: 1.2, ease: 'power2.out'
+      });
+
+      gsap.to(img, {
+        scrollTrigger: { trigger: img, start: 'top bottom', end: 'bottom top', scrub: true },
+        y: '-6%', ease: 'none'
+      });
+    });
+  </script>
+</body>
+</html>
