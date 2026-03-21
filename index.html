@@ -378,6 +378,7 @@
       backdrop-filter: blur(8px);
       box-shadow: 0 8px 32px rgba(0,0,0,0.4);
       transform: translate(-50%, -100%);
+      margin-top: -5px;
     }
 
     .animated-bar-tooltip .tt-month {
@@ -394,7 +395,7 @@
 
     .animated-bar-tooltip .tt-year {
       font-size: 11px;
-      color: #7A8A9E;
+      color: rgba(255, 255, 255, 0.7);
     }
 
     /* Bed Chart Tooltip */
@@ -415,6 +416,7 @@
       backdrop-filter: blur(8px);
       box-shadow: 0 4px 16px rgba(0,0,0,0.3);
       transform: translate(-50%, -100%);
+      margin-top: -5px;
     }
 
     /* Rainy season bracket */
@@ -655,12 +657,6 @@
       </div>
     </div>
 
-    <div class="animated-bar-tooltip" id="animatedBarTooltip">
-      <div class="tt-year"></div>
-      <div class="tt-month"></div>
-      <div class="tt-value"></div>
-    </div>
-
     <p class="emphasis-line">Something had to change.</p>
   </section>
 
@@ -779,6 +775,12 @@
     <p class="footer-year">2026</p>
   </footer>
 
+  <div class="animated-bar-tooltip" id="animatedBarTooltip">
+    <div class="tt-year"></div>
+    <div class="tt-month"></div>
+    <div class="tt-value"></div>
+  </div>
+
   <script>
     // 2. Bed Charts
     function buildBedChart(containerId, data, showSMCLine) {
@@ -852,11 +854,11 @@
         icon.addEventListener('mouseenter', function(e) {
           tooltip.style.opacity = '1';
           tooltip.style.left = e.clientX + 'px';
-          tooltip.style.top = (e.clientY - 15) + 'px';
+          tooltip.style.top = e.clientY + 'px';
         });
         icon.addEventListener('mousemove', function(e) {
           tooltip.style.left = e.clientX + 'px';
-          tooltip.style.top = (e.clientY - 15) + 'px';
+          tooltip.style.top = e.clientY + 'px';
         });
         icon.addEventListener('mouseleave', function() {
           tooltip.style.opacity = '0';
@@ -1007,17 +1009,20 @@
 
       bars.on('mouseenter', function(event, month) {
         const val = currentDisplayValues[month] || 0;
+        const isRainy = rainyMonths.includes(month);
+        tooltip.style.background = isRainy ? 'rgba(139, 26, 26, 0.95)' : 'rgba(26, 42, 80, 0.95)';
+        
         tooltip.querySelector('.tt-year').textContent = currentYear;
         tooltip.querySelector('.tt-month').textContent = month;
         tooltip.querySelector('.tt-value').textContent = formatNum(Math.round(val));
         tooltip.querySelector('.tt-value').style.color = '#FFFFFF';
         tooltip.style.left = event.clientX + 'px';
-        tooltip.style.top = (event.clientY - 15) + 'px';
+        tooltip.style.top = event.clientY + 'px';
         tooltip.style.opacity = '1';
       })
       .on('mousemove', function(event) {
         const x = event.clientX;
-        const y = event.clientY - 15;
+        const y = event.clientY;
         tooltip.style.left = x + 'px';
         tooltip.style.top = y + 'px';
       })
@@ -1037,18 +1042,21 @@
         .style('cursor', 'pointer')
         .on('mouseenter', function(event, month) {
           const val = currentDisplayValues[month] || 0;
+          const isRainy = rainyMonths.includes(month);
+          tooltip.style.background = isRainy ? 'rgba(139, 26, 26, 0.95)' : 'rgba(26, 42, 80, 0.95)';
+
           tooltip.querySelector('.tt-year').textContent = currentYear;
           tooltip.querySelector('.tt-month').textContent = month;
           tooltip.querySelector('.tt-value').textContent = formatNum(Math.round(val));
           tooltip.querySelector('.tt-value').style.color = '#FFFFFF';
           tooltip.style.left = event.clientX + 'px';
-          tooltip.style.top = (event.clientY - 15) + 'px';
+          tooltip.style.top = event.clientY + 'px';
           tooltip.style.opacity = '1';
           bars.filter(d => d === month).attr('opacity', 0.85);
         })
         .on('mousemove', function(event) {
           tooltip.style.left = event.clientX + 'px';
-          tooltip.style.top = (event.clientY - 15) + 'px';
+          tooltip.style.top = event.clientY + 'px';
         })
         .on('mouseleave', function(event, month) {
           tooltip.style.opacity = '0';
@@ -1365,7 +1373,7 @@
         tooltip.style.zIndex = '1000';
         tooltip.style.transition = 'opacity 0.15s ease';
         tooltip.style.transform = 'translate(-50%, -100%)';
-        tooltip.style.marginTop = '-10px';
+        tooltip.style.marginTop = '-5px';
         document.body.appendChild(tooltip);
       }
 
